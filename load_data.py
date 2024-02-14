@@ -19,28 +19,30 @@ CHARS = ['京', '沪', '津', '渝', '冀', '晋', '蒙', '辽', '吉', '黑',
 CHARS_DICT = {char:i for i, char in enumerate(CHARS)}
 
 class LPRDataLoader(Dataset):
-    '''
-        初始化 (__init__ 方法):
-        img_dir: 图像的目录路径。
-        imgSize: 目标图像的大小。
-        lpr_max_len: 车牌的最大长度（可能是指车牌中字符的最大数量）。
-        PreprocFun: 图像预处理函数。如果提供了这个参数，它会被设置为预处理函数；否则，默认使用 transform 方法作为预处理函数。
-        img_paths: 存储从给定目录中获取的所有图像路径。
-        img_size: 目标图像的大小。
-        lpr_max_len: 车牌的最大长度。
-        '''
+    
     def __init__(self, img_dir, imgSize, lpr_max_len, PreprocFun=None):
+        # 初始化函数，接收四个参数：img_dir（图片目录）、imgSize（图片大小）、lpr_max_len（车牌号码最大长度）和PreprocFun（预处理函数）
         self.img_dir = img_dir
+        # 初始化属性 img_dir，存储图片目录
         self.img_paths = []
+        # 初始化属性 img_paths，存储图片路径列表
         for i in range(len(img_dir)):
+            # 遍历 img_dir 列表中的每个元素
             self.img_paths += [el for el in paths.list_images(img_dir[i])]
+        # 将每个子目录下的图片路径添加到 img_paths 列表中
         random.shuffle(self.img_paths)
+        # 将 img_paths 列表随机排序
         self.img_size = imgSize
+        # 初始化属性 img_size，存储图片大小
         self.lpr_max_len = lpr_max_len
+        # 初始化属性 lpr_max_len，存储车牌号码最大长度
         if PreprocFun is not None:
+            # 如果 PreprocFun 不为空
             self.PreprocFun = PreprocFun
         else:
+            # 如果 PreprocFun 为空，则将 self.transform 赋值给 PreprocFun
             self.PreprocFun = self.transform
+
 
     def __len__(self):
         '''
@@ -50,30 +52,30 @@ class LPRDataLoader(Dataset):
         return len(self.img_paths)
 
     def __getitem__(self, index):
-        '''
-        根据给定的索引 index，返回一个图像和对应的标签。
-        filename: 图像文件的路径。
-        Image: 使用 OpenCV 读取图像。
-        如果图像的大小与目标大小不匹配，则调整图像大小。
-        使用预处理函数对图像进行处理。
-        basename: 文件的基本名（不含路径和扩展名）。
-        imgname: 仅包含文件名（不包括扩展名）。
-        从 imgname 中提取车牌字符作为标签。
-        返回处理后的图像、标签和标签的长度。
-        '''
+        # 获取指定索引的图片路径
         filename = self.img_paths[index]
+        # 读取图片
         # Image = cv2.imread(filename)
         Image = cv2.imdecode(np.fromfile(filename, dtype=np.uint8), -1)
+        # 将图片从RGB格式转换为BGR格式
         Image = cv2.cvtColor(Image, cv2.COLOR_RGB2BGR)
+        # 获取图片的高度、宽度和通道数
         height, width, _ = Image.shape
+        # 如果图片的高度或宽度与期望的尺寸不一致，则对图片进行缩放
         if height != self.img_size[1] or width != self.img_size[0]:
             Image = cv2.resize(Image, self.img_size)
+        # 对图片进行预处理
         Image = self.PreprocFun(Image)
 
+        # 获取图片的文件名（不包含路径）
         basename = os.path.basename(filename)
+        # 分离文件名和后缀
         imgname, suffix = os.path.splitext(basename)
+        # 提取文件名中的特定部分，这里假设是"-"前和"_"前的部分
         imgname = imgname.split("-")[0].split("_")[0]
+        # 初始化标签列表
         label = list()
+        # 将文件名中的每个字符转换为对应的标签并添加到标签列表中
         for c in imgname:
             # one_hot_base = np.zeros(len(CHARS))
             # one_hot_base[CHARS_DICT[c]] = 1

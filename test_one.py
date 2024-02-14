@@ -11,32 +11,26 @@ import os
 
 # Assuming you have a function to build the LPRNet model
 def get_parser():
-    '''
-    这段代码定义了一个函数 get_parser()，其目的是使用 argparse 模块从命令行获取参数。argparse 是 Python 的标准库之一，用于编写用户友好的命令行接口。
-    以下是参数的详细说明：
-    --img_size: 默认值为 [94, 24]，表示输入图像的大小。
-    --test_img_dirs: 默认值为 "./data/test"，表示测试图像的路径。
-    --dropout_rate: 默认值为 0，表示 dropout 的比率。dropout 是一种防止神经网络过拟合的技术。
-    --lpr_max_len: 默认值为 8，表示车牌号码的最大长度。
-    --test_batch_size: 默认值为 100，表示测试时的批量大小。
-    --phase_train: 默认值为 False，表示当前是训练阶段还是测试阶段。
-    --num_workers: 默认值为 8，表示数据加载时使用的 worker 数量。
-    --cuda: 默认值为 True，表示是否使用 CUDA（即 GPU）进行训练。
-    --show: 默认值为 False，表示是否显示测试图像及其预测结果。
-    --pretrained_model: 默认值为 './weights/Final_LPRNet_model.pth'，表示预训练模型的文件路径。
-    '''
+    # 创建一个解析器对象，并设置描述信息
     parser = argparse.ArgumentParser(description='parameters to train net')
+    # 添加命令行参数--img_size，并设置默认值为[94, 24]，用于指定图像大小
     parser.add_argument('--img_size', default=[94, 24], help='the image size')
+    # 添加命令行参数--dropout_rate，并设置默认值为0，用于指定dropout率
     parser.add_argument('--dropout_rate', default=0, help='dropout rate.')
+    # 添加命令行参数--lpr_max_len，并设置默认值为8，用于指定车牌号码的最大长度
     parser.add_argument('--lpr_max_len', default=8, help='license plate number max length.')
+    # 添加命令行参数--phase_train，并设置默认值为False，类型为bool，用于指定训练或测试阶段
     parser.add_argument('--phase_train', default=False, type=bool, help='train or test phase flag.')
+    # 添加命令行参数--num_workers，并设置默认值为8，类型为int，用于指定数据加载时使用的worker数量
     parser.add_argument('--num_workers', default=8, type=int, help='Number of workers used in dataloading')
+    # 添加命令行参数--cuda，并设置默认值为False，类型为bool，用于指定是否使用cuda进行模型训练
     parser.add_argument('--cuda', default=False, type=bool, help='Use cuda to train model')
-    parser.add_argument('--pretrained_model', default=r'weights\\lprnet-pretrain.pth', help='pretrained base model')
-    parser.add_argument('--test_img_dirs', default=r"data\\one", help='the test images path')
-
+    # 添加命令行参数--pretrained_model，并设置默认值为'weights\\lprnet-pretrain.pth'，用于指定预训练模型的路径
+    parser.add_argument('--pretrained_model', default=r'weights\lprnet-pretrain.pth', help='pretrained base model')
+    # 添加命令行参数--test_img_dirs，并设置默认值为'data\\one'，用于指定测试图像的路径
+    parser.add_argument('--test_img_dirs', default=r"data\one", help='the test images path')
+    # 解析命令行参数并返回结果
     args = parser.parse_args()
-
     return args
 
 def test_single_image():

@@ -11,18 +11,28 @@ CHARS = ['京', '沪', '津', '渝', '冀', '晋', '蒙', '辽', '吉', '黑',
          ]
 class small_basic_block(nn.Module):
     def __init__(self, ch_in, ch_out):
-        
+        # 调用父类的构造函数
         super(small_basic_block, self).__init__()
+        # 定义一个序列模型，包含多个卷积层和激活函数
         self.block = nn.Sequential(
+            # 第一层卷积，输入通道数为ch_in，输出通道数为ch_out的四分之一，卷积核大小为1x1
             nn.Conv2d(ch_in, ch_out // 4, kernel_size=1),
+            # 激活函数ReLU
             nn.ReLU(),
+            # 第二层卷积，输入通道数为ch_out的四分之一，输出通道数仍为ch_out的四分之一，卷积核大小为3x1，填充为(1,0)
             nn.Conv2d(ch_out // 4, ch_out // 4, kernel_size=(3, 1), padding=(1, 0)),
+            # 激活函数ReLU
             nn.ReLU(),
+            # 第三层卷积，输入通道数为ch_out的四分之一，输出通道数仍为ch_out的四分之一，卷积核大小为1x3，填充为(0,1)
             nn.Conv2d(ch_out // 4, ch_out // 4, kernel_size=(1, 3), padding=(0, 1)),
+            # 激活函数ReLU
             nn.ReLU(),
+            # 第四层卷积，输入通道数为ch_out的四分之一，输出通道数为ch_out，卷积核大小为1x1
             nn.Conv2d(ch_out // 4, ch_out, kernel_size=1),
         )
+
     def forward(self, x):
+        # 调用self.block函数，将输入x作为参数传入，并返回其结果
         return self.block(x)
 
 class LPRNet(nn.Module):
@@ -87,16 +97,16 @@ class LPRNet(nn.Module):
         '''
         self.container = nn.Sequential(
             nn.Conv2d(in_channels=448+self.class_num, out_channels=self.class_num, kernel_size=(1, 1), stride=(1, 1)),
-            # nn.BatchNorm2d(num_features=self.class_num),
-            # nn.ReLU(),
-            # nn.Conv2d(in_channels=self.class_num, out_channels=self.lpr_max_len+1, kernel_size=3, stride=2),
-            # nn.ReLU(),
+            nn.BatchNorm2d(num_features=self.class_num),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=self.class_num, out_channels=self.lpr_max_len+1, kernel_size=3, stride=2),
+            nn.ReLU(),
         )
-        # self.connected = nn.Sequential(
-        #     nn.Linear(class_num * 88, 128),
-        #     nn.ReLU(),
-        # )
-        #
+        self.connected = nn.Sequential(
+           nn.Linear(class_num * 88, 128),
+           nn.ReLU(),
+        )
+        
     '''
         这段代码定义了一个神经网络模型的前向传播过程。下面是对这段代码的详细解释：
         定义forward函数:
@@ -148,23 +158,6 @@ class LPRNet(nn.Module):
         logits = torch.mean(x, dim=2)  # -> [bs, 68, 18]  # 68 字符类别数   18字符序列长度
 
         return logits
-
-
-
-
-    # https://blog.csdn.net/weixin_39027619/article/details/106143755
-    # def forward(self, x):
-    #     x = self.backbone(x)
-    #     pattern = x.flatten(1, -1)
-    #     pattern = self.connected(pattern)
-    #     width = x.size()[-1]
-    #     pattern = torch.reshape(pattern, [-1, 128, 1, 1])
-    #     pattern = pattern.repeat(1, 1, 1, width)
-    #     x = torch.cat([x, pattern], dim=1)
-    #     x = self.container(x)
-    #     logits = x.squeeze(2)
-    #     return logits
-
 
 def build_lprnet(lpr_max_len=8, phase=False, class_num=66, dropout_rate=0.5):
     '''

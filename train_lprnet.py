@@ -20,27 +20,39 @@ import pandas as pd
 
 
 def sparse_tuple_for_ctc(T_length, lengths):
+    # 根据输入的长度列表和目标长度列表，生成相应的输入长度元组和目标长度元组。
+    # 初始化输入长度列表和目标长度列表
     input_lengths = []
     target_lengths = []
 
+    # 遍历长度列表
     for ch in lengths:
+        # 将输入长度列表中的每个元素都设置为T_length
         input_lengths.append(T_length)
+        # 将目标长度列表中的每个元素都设置为当前遍历到的长度ch
         target_lengths.append(ch)
 
+    # 返回输入长度元组和目标长度元组
     return tuple(input_lengths), tuple(target_lengths)
 
 def adjust_learning_rate(optimizer, cur_epoch, base_lr, lr_schedule):
     """
-    Sets the learning rate
+    设置学习率
     """
+    # 初始化学习率为0
     lr = 0
+    # 遍历学习率调度列表
     for i, e in enumerate(lr_schedule):
+        # 如果当前轮次小于学习率调度列表中的值，则计算学习率并跳出循环
         if cur_epoch < e:
             lr = base_lr * (0.1 ** i)
             break
+    # 如果学习率仍为0，则将学习率设置为基本学习率
     if lr == 0:
         lr = base_lr
+    # 遍历优化器的参数组
     for param_group in optimizer.param_groups:
+        # 将参数组的学习率设置为计算得到的学习率
         param_group['lr'] = lr
 
     return lr
@@ -73,15 +85,25 @@ def get_parser():
     return args
 
 def collate_fn(batch):
+    # 存储图像的列表
     imgs = []
+    # 存储标签的列表
     labels = []
+    # 存储长度的列表
     lengths = []
+    # 遍历批次中的每个样本
     for _, sample in enumerate(batch):
+        # 获取样本中的图像、标签和长度
         img, label, length = sample
+        # 将图像转换为PyTorch张量并添加到列表中
         imgs.append(torch.from_numpy(img))
+        # 将标签添加到标签列表中
         labels.extend(label)
+        # 将长度添加到长度列表中
         lengths.append(length)
+    # 将标签列表转换为NumPy数组，并展平并转换为整数类型
     labels = np.asarray(labels).flatten().astype(int)
+    # 将图像列表转换为PyTorch张量堆叠，并返回结果
     return (torch.stack(imgs, 0), torch.from_numpy(labels), lengths)
 
 def train():
@@ -107,17 +129,24 @@ def train():
         print("load pretrained model successful!")
     else:
         def xavier(param):
+            # 使用Xavier初始化方法对参数进行初始化
             nn.init.xavier_uniform(param)
 
         def weights_init(m):
+            # 遍历模型的state_dict中的所有键
             for key in m.state_dict():
+                # 如果键的最后一个部分是'weight'
                 if key.split('.')[-1] == 'weight':
+                    # 如果键中包含'conv'，使用kaiming_normal_初始化方法对权重进行初始化
                     if 'conv' in key:
                         nn.init.kaiming_normal_(m.state_dict()[key], mode='fan_out')
+                    # 如果键中包含'bn'，使用xavier方法对权重进行初始化
                     if 'bn' in key:
                         m.state_dict()[key][...] = xavier(1)
+                # 如果键的最后一个部分是'bias'，将偏置初始化为0.01
                 elif key.split('.')[-1] == 'bias':
                     m.state_dict()[key][...] = 0.01
+# 注意：xavier方法需要单独定义，这里只是作为示例使用，实际使用时需要确保xavier方法可用。
 
         lprnet.backbone.apply(weights_init)
         lprnet.container.apply(weights_init)
