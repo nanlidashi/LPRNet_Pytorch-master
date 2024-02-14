@@ -49,7 +49,7 @@ class LPRNet(nn.Module):
         self.lpr_max_len = lpr_max_len
         self.class_num = class_num
         '''
-        Backbone网络:
+        Backbone网络:主干网络
         该网络首先使用一个2D卷积层对输入图像进行特征提取。
         然后是一个批归一化层和ReLU激活函数。
         接下来是一个3D最大池化层，用于下采样特征图。
@@ -58,30 +58,35 @@ class LPRNet(nn.Module):
         然后是一个dropout层，用于防止过拟合。
         之后是一个1x4的卷积层，可能是为了进一步降维或提取特征。
         接着是另一个批归一化层、ReLU激活函数、dropout层和一个分类用的卷积层。
+        BatchNorm2d--批归一化层，对输入进行归一化。
+        BatchNorm2d还有一些重要的参数，如eps（稳定系数，防止分母出现0，默认为1e-5）、momentum（用于计算running mean
+            和running var的动量，默认为0.1）、affine（当设为True时，会给定可以学习的系数矩阵gamma和beta）和track_running_stats
+            （当设为True时，会计算并保存running mean和running var，用于测试或评估模式，默认为True）。
+            总的来说，BatchNorm2d是一种有效的深度学习技术，可以提高模型的训练速度和稳定性，减少过拟合，并改善模型的性能。
         '''
         self.backbone = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1),    # 0  [bs,3,24,94] -> [bs,64,22,92]
-            nn.BatchNorm2d(num_features=64),                                       # 1  -> [bs,64,22,92]
+            nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1),    # 0  [bs,3,24,94] -> [bs,64,22,92]  1
+            nn.BatchNorm2d(num_features=64),                                       # 1  -> [bs,64,22,92]               2
             nn.ReLU(),                                                             # 2  -> [bs,64,22,92]
             nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(1, 1, 1)),                 # 3  -> [bs,64,20,90]
             small_basic_block(ch_in=64, ch_out=128),                               # 4  -> [bs,128,20,90]
-            nn.BatchNorm2d(num_features=128),                                      # 5  -> [bs,128,20,90]
+            nn.BatchNorm2d(num_features=128),                                      # 5  -> [bs,128,20,90]               3
             nn.ReLU(),                                                             # 6  -> [bs,128,20,90]
             nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(2, 1, 2)),                 # 7  -> [bs,64,18,44]
             small_basic_block(ch_in=64, ch_out=256),                               # 8  -> [bs,256,18,44]
-            nn.BatchNorm2d(num_features=256),                                      # 9  -> [bs,256,18,44]
+            nn.BatchNorm2d(num_features=256),                                      # 9  -> [bs,256,18,44]               4
             nn.ReLU(),                                                             # 10 -> [bs,256,18,44]
             small_basic_block(ch_in=256, ch_out=256),                              # 11 -> [bs,256,18,44]
-            nn.BatchNorm2d(num_features=256),                                      # 12 -> [bs,256,18,44]
+            nn.BatchNorm2d(num_features=256),                                      # 12 -> [bs,256,18,44]               5
             nn.ReLU(),                                                             # 13 -> [bs,256,18,44]
             nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(4, 1, 2)),                 # 14 -> [bs,64,16,21]
-            nn.Dropout(dropout_rate),  # 0.5 dropout rate                          # 15 -> [bs,64,16,21]
-            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=(1, 4), stride=1),   # 16 -> [bs,256,16,18]
-            nn.BatchNorm2d(num_features=256),                                            # 17 -> [bs,256,16,18]
+            nn.Dropout(dropout_rate),  # 0.5 dropout rate                          # 15 -> [bs,64,16,21]                6
+            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=(1, 4), stride=1),   # 16 -> [bs,256,16,18]         7
+            nn.BatchNorm2d(num_features=256),                                            # 17 -> [bs,256,16,18]         8
             nn.ReLU(),                                                                   # 18 -> [bs,256,16,18]
-            nn.Dropout(dropout_rate),  # 0.5 dropout rate                                  19 -> [bs,256,16,18]
-            nn.Conv2d(in_channels=256, out_channels=class_num, kernel_size=(13, 1), stride=1),  # class_num=68  20  -> [bs,68,4,18]
-            nn.BatchNorm2d(num_features=class_num),                                             # 21 -> [bs,68,4,18]
+            nn.Dropout(dropout_rate),  # 0.5 dropout rate                                  19 -> [bs,256,16,18]         9
+            nn.Conv2d(in_channels=256, out_channels=class_num, kernel_size=(13, 1), stride=1),  # class_num=68  20  -> [bs,68,4,18]         10
+            nn.BatchNorm2d(num_features=class_num),                                             # 21 -> [bs,68,4,18]    11
             nn.ReLU(),                                                                          # 22 -> [bs,68,4,18]
         )
         '''
@@ -97,15 +102,15 @@ class LPRNet(nn.Module):
         '''
         self.container = nn.Sequential(
             nn.Conv2d(in_channels=448+self.class_num, out_channels=self.class_num, kernel_size=(1, 1), stride=(1, 1)),
-            nn.BatchNorm2d(num_features=self.class_num),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=self.class_num, out_channels=self.lpr_max_len+1, kernel_size=3, stride=2),
-            nn.ReLU(),
+        #     nn.BatchNorm2d(num_features=self.class_num),
+        #     nn.ReLU(),
+        #     nn.Conv2d(in_channels=self.class_num, out_channels=self.lpr_max_len+1, kernel_size=3, stride=2),
+        #     nn.ReLU(),
         )
-        self.connected = nn.Sequential(
-           nn.Linear(class_num * 88, 128),
-           nn.ReLU(),
-        )
+        # self.connected = nn.Sequential(
+        #    nn.Linear(class_num * 88, 128),
+        #   nn.ReLU(),
+        # )
         
     '''
         这段代码定义了一个神经网络模型的前向传播过程。下面是对这段代码的详细解释：
@@ -156,6 +161,7 @@ class LPRNet(nn.Module):
         x = torch.cat(global_context, 1)  # [bs,516,4,18]
         x = self.container(x)  # -> [bs, 68, 4, 18]   head头
         logits = torch.mean(x, dim=2)  # -> [bs, 68, 18]  # 68 字符类别数   18字符序列长度
+        #68代表序列中每个位置字符为相应类别的概率，车牌字符共有68类，18代表字符序列长度
 
         return logits
 
@@ -182,7 +188,7 @@ def build_lprnet(lpr_max_len=8, phase=False, class_num=66, dropout_rate=0.5):
     
 if __name__ == "__main__":
     from torchsummary import summary
-    model = build_lprnet(75,0.5)
+    model = build_lprnet(68,0.5)
     summary(model, (3,24,94), device="cpu")
 
 ----------------------------------------------------------------

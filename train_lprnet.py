@@ -117,7 +117,7 @@ def train():
 
     if not os.path.exists(args.save_folder):
         os.mkdir(args.save_folder)
-
+    # 构建网络
     lprnet = LPRNet(lpr_max_len=args.lpr_max_len, phase=args.phase_train, class_num=len(CHARS), dropout_rate=args.dropout_rate)
     device = torch.device("cuda:0" if args.cuda else "cpu")
     lprnet.to(device)
@@ -125,7 +125,7 @@ def train():
 
     # load pretrained model
     if args.pretrained_model:
-        lprnet.load_state_dict(torch.load(args.pretrained_model))
+        lprnet.load_state_dict(torch.load(args.pretrained_model))# 加载预训练模型
         print("load pretrained model successful!")
     else:
         def xavier(param):
@@ -162,13 +162,13 @@ def train():
     train_dataset = LPRDataLoader(train_img_dirs.split(','), args.img_size, args.lpr_max_len)
     test_dataset = LPRDataLoader(test_img_dirs.split(','), args.img_size, args.lpr_max_len)
 
-    epoch_size = len(train_dataset) // args.train_batch_size
-    max_iter = args.max_epoch * epoch_size
+    epoch_size = len(train_dataset) // args.train_batch_size  # 每个epoch的大小
+    max_iter = args.max_epoch * epoch_size # 最大迭代次数
 
     ctc_loss = nn.CTCLoss(blank=len(CHARS)-1, reduction='mean')  # reduction: 'none' | 'mean' | 'sum'
 
     if args.resume_epoch > 0:
-        start_iter = args.resume_epoch * epoch_size
+        start_iter = args.resume_epoch * epoch_size # 开始迭代次数
     else:
         start_iter = 0
 
@@ -184,8 +184,8 @@ def train():
         if iteration !=0 and iteration % args.save_interval == 0:
             torch.save(lprnet.state_dict(), args.save_folder + 'LPRNet_' + '_iteration_' + repr(iteration) + '.pth')
 
-        if (iteration + 1) % args.test_interval == 0:
-            Greedy_Decode_Eval(lprnet, test_dataset, args)
+        if (iteration + 1) % args.test_interval == 0: # 每隔多少次迭代测试一次
+            Greedy_Decode_Eval(lprnet, test_dataset, args) 
             # lprnet.train() # should be switch to train mode
 
         start_time = time.time()
@@ -194,7 +194,7 @@ def train():
         # labels = np.array([el.numpy() for el in labels]).T
         # print(labels)
         # get ctc parameters
-        input_lengths, target_lengths = sparse_tuple_for_ctc(T_length, lengths)
+        input_lengths, target_lengths = sparse_tuple_for_ctc(T_length, lengths) # 输入长度和标签长度
         # update lr
         lr = adjust_learning_rate(optimizer, epoch, args.learning_rate, args.lr_schedule)
 
@@ -206,11 +206,17 @@ def train():
             labels = Variable(labels, requires_grad=False)
 
         # forward
-        logits = lprnet(images)
+        logits = lprnet(images) # 输出[bs, 68, 18]
+        # 这一行代码将输入的images通过一个名为lprnet的模型，并将输出存储在logits中。从注释中，我们知道logits的形状是[bs, 68, 18]，其中"bs"代表批量大小。
         log_probs = logits.permute(2, 0, 1) # for ctc loss: T x N x C
+        # permute函数用于改变张量的维度顺序。在这里，它将logits的维度从[bs, 68, 18]变为[18, bs, 68]。这种重排是为了适应CTC损失的计算。
         # print(labels.shape)
         log_probs = log_probs.log_softmax(2).requires_grad_()
+        # log_softmax函数对张量在指定维度（这里是第2维，即18）进行softmax操作，然后取对数。这通常用于计算多分类问题的log-probabilities。
+        # .requires_grad_()是一个PyTorch的特性，表示从这一步开始计算梯度。这是为了之后的反向传播做准备。
+
         # log_probs = log_probs.detach().requires_grad_()
+        # 这一行代码将log_probs与计算图分离，这样它就不会在反向传播时更新梯度。使用.detach()通常是为了在某些情况下避免不必要的梯度计算。
         # print(log_probs.shape)
         # backprop
         optimizer.zero_grad()
@@ -219,7 +225,7 @@ def train():
         # labels: [93]
         # input_lengths:  tuple   example: 000=18  001=18...   每个序列长度
         # target_lengths: tuple   example: 000=7   001=8 ...   每个gt长度
-        loss = ctc_loss(log_probs, labels, input_lengths=input_lengths, target_lengths=target_lengths)
+        loss = ctc_loss(log_probs, labels, input_lengths=input_lengths, target_lengths=target_lengths) # 计算损失值
         if loss.item() == np.inf:
             continue
         loss.backward()
@@ -247,7 +253,7 @@ def train():
     # save final parameters
     torch.save(lprnet.state_dict(), args.save_folder + 'lprnet-pretrain.pth')
 
-def Greedy_Decode_Eval(Net, datasets, args):
+def Greedy_Decode_Eval(Net, datasets, args): # 贪婪搜索
     # TestNet = Net.eval()
     epoch_size = len(datasets) // args.test_batch_size
     batch_iterator = iter(DataLoader(datasets, args.test_batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate_fn))
@@ -265,7 +271,7 @@ def Greedy_Decode_Eval(Net, datasets, args):
             label = labels[start:start+length]
             targets.append(label)
             start += length
-        targets = np.array([el.numpy() for el in targets])
+        targets = np.array([el.numpy() for el in targets]) # 转成numpy数组
 
         if args.cuda:
             images = Variable(images.cuda())
@@ -273,33 +279,35 @@ def Greedy_Decode_Eval(Net, datasets, args):
             images = Variable(images)
 
         # forward
+        # images: [bs, 3, 24, 94]
+        # prebs:  [bs, 68, 18]
         prebs = Net(images)
         # greedy decode
         prebs = prebs.cpu().detach().numpy()
         preb_labels = list()
         for i in range(prebs.shape[0]):
-            preb = prebs[i, :, :]
+            preb = prebs[i, :, :]  # 对每张图片 [68, 18]
             preb_label = list()
-            for j in range(preb.shape[1]):
+            for j in range(preb.shape[1]):  # 18  返回序列中每个位置最大的概率对应的字符idx  其中'-'是67
                 preb_label.append(np.argmax(preb[:, j], axis=0))
             no_repeat_blank_label = list()
             pre_c = preb_label[0]
-            if pre_c != len(CHARS) - 1:
+            if pre_c != len(CHARS) - 1: # 记录重复字符
                 no_repeat_blank_label.append(pre_c)
-            for c in preb_label: # dropout repeate label and blank label
+            for c in preb_label: # dropout repeate label and blank label 去除重复字符和空白字符'-'
                 if (pre_c == c) or (c == len(CHARS) - 1):
                     if c == len(CHARS) - 1:
                         pre_c = c
                     continue
                 no_repeat_blank_label.append(c)
                 pre_c = c
-            preb_labels.append(no_repeat_blank_label)
-        for i, label in enumerate(preb_labels):
+            preb_labels.append(no_repeat_blank_label) # 得到最终的无重复字符和无空白字符的序列
+        for i, label in enumerate(preb_labels):# 逐个样本计算准确率
             if len(label) != len(targets[i]):
                 Tn_1 += 1
                 continue
             if (np.asarray(targets[i]) == np.asarray(label)).all():
-                Tp += 1
+                Tp += 1  # 完全正确+1
             else:
                 Tn_2 += 1
 
@@ -317,23 +325,15 @@ def Greedy_Decode_Eval(Net, datasets, args):
 if __name__ == "__main__":
     # 获取当前时间作为起始时间  
     start_time = datetime.datetime.now()
-     
     train()
-    
-    # output = train()  # 调用修改后的train函数  
-    
     # 获取程序结束时间  
     end_time = datetime.datetime.now()  
-    
     # 计算时间差  
     time_difference = end_time - start_time  
-    
     # 将时间差转换为小时、分钟和秒  
     hours = time_difference.seconds // 3600  
     minutes = (time_difference.seconds % 3600) // 60  
     seconds = time_difference.seconds % 60  
-    
     # 将结果格式化为字符串，不足一秒按一秒算  
     formatted_time = "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)  
-    
     print("程序运行时间为:", formatted_time)
