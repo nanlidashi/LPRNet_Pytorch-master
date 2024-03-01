@@ -11,6 +11,7 @@ CHARS = ['京', '沪', '津', '渝', '冀', '晋', '蒙', '辽', '吉', '黑',
          ]
 class small_basic_block(nn.Module):
     def __init__(self, ch_in, ch_out):
+        # 该类表示一个神经网络中的基本块（通常用于构建更大的网络，如卷积神经网络）。这个基本块主要包含一个序列模型，其中包含多个卷积层和激活函数。
         # 调用父类的构造函数
         super(small_basic_block, self).__init__()
         # 定义一个序列模型，包含多个卷积层和激活函数
@@ -54,6 +55,7 @@ class LPRNet(nn.Module):
         然后是一个批归一化层和ReLU激活函数。
         接下来是一个3D最大池化层，用于下采样特征图。
         之后是三个连续的小基本块，每个小基本块都包含多个卷积层和ReLU激活函数。这些小基本块用于进一步提取特征。
+        
         之后是另一个批归一化层、ReLU激活函数和另一个3D最大池化层。
         然后是一个dropout层，用于防止过拟合。
         之后是一个1x4的卷积层，可能是为了进一步降维或提取特征。
@@ -108,8 +110,8 @@ class LPRNet(nn.Module):
         #     nn.ReLU(),
         )
         # self.connected = nn.Sequential(
-        #    nn.Linear(class_num * 88, 128),
-        #   nn.ReLU(),
+        #     nn.Linear(class_num * 88, 128),
+        #     nn.ReLU(),
         # )
         
     '''
@@ -184,6 +186,7 @@ def build_lprnet(lpr_max_len=8, phase=False, class_num=66, dropout_rate=0.5):
         return Net.train()
     else:
         return Net.eval()
+
 """     return Net
     
 if __name__ == "__main__":

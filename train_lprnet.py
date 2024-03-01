@@ -61,8 +61,8 @@ def get_parser():
     parser = argparse.ArgumentParser(description='parameters to train net')
     parser.add_argument('--max_epoch', default=1, help='epoch to train the network')
     parser.add_argument('--img_size', default=[94, 24], help='the image size')
-    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2020_train", help='the train images path')
-    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2020_test", help='the test images path')
+    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2019_base_train", help='the train images path')
+    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2019_base_test", help='the test images path')
     parser.add_argument('--dropout_rate', default=0.5, help='dropout rate.')
     parser.add_argument('--learning_rate', default=0.1, help='base value of learning rate.')
     parser.add_argument('--lpr_max_len', default=8, help='license plate number max length.')
@@ -77,7 +77,7 @@ def get_parser():
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--weight_decay', default=2e-5, type=float, help='Weight decay for SGD')
     parser.add_argument('--lr_schedule', default=[20, 40, 60, 80, 100], help='schedule for learning rate.')
-    parser.add_argument('--save_folder', default=r'ccpd2020_weights\\',help='Location to save checkpoint models')
+    parser.add_argument('--save_folder', default=r'a\\',help='Location to save checkpoint models')
     parser.add_argument('--pretrained_model', default='', help='no pretrain')
 
     args = parser.parse_args()
@@ -107,8 +107,8 @@ def collate_fn(batch):
     return (torch.stack(imgs, 0), torch.from_numpy(labels), lengths)
 
 def train():
-    output = []
-    out_acc = []
+    # output = []
+    # out_acc = []
     args = get_parser()
 
     T_length = 18  # args.lpr_max_len
@@ -178,14 +178,14 @@ def train():
             batch_iterator = iter(DataLoader(train_dataset, args.train_batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate_fn))
             loss_val = 0
             epoch += 1
-            acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
-            out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc))
+            # acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
+            # out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc))
 
         if iteration !=0 and iteration % args.save_interval == 0:
             torch.save(lprnet.state_dict(), args.save_folder + 'LPRNet_' + '_iteration_' + repr(iteration) + '.pth')
 
-        if (iteration + 1) % args.test_interval == 0: # 每隔多少次迭代测试一次
-            Greedy_Decode_Eval(lprnet, test_dataset, args) 
+        """ if (iteration + 1) % args.test_interval == 0: # 每隔多少次迭代测试一次
+            Greedy_Decode_Eval(lprnet, test_dataset, args) """ 
             # lprnet.train() # should be switch to train mode
 
         start_time = time.time()
@@ -205,7 +205,7 @@ def train():
             images = Variable(images, requires_grad=False)
             labels = Variable(labels, requires_grad=False)
 
-        # forward
+        # forward 前馈传播
         logits = lprnet(images) # 输出[bs, 68, 18]
         # 这一行代码将输入的images通过一个名为lprnet的模型，并将输出存储在logits中。从注释中，我们知道logits的形状是[bs, 68, 18]，其中"bs"代表批量大小。
         log_probs = logits.permute(2, 0, 1) # for ctc loss: T x N x C
@@ -218,8 +218,10 @@ def train():
         # log_probs = log_probs.detach().requires_grad_()
         # 这一行代码将log_probs与计算图分离，这样它就不会在反向传播时更新梯度。使用.detach()通常是为了在某些情况下避免不必要的梯度计算。
         # print(log_probs.shape)
-        # backprop
-        optimizer.zero_grad()
+
+
+        # backprop 反向传播
+        optimizer.zero_grad() # 梯度清零
 
         # log_probs: 预测结果 [18, bs, 68]  其中18为序列长度  68为字典数
         # labels: [93]
@@ -228,24 +230,24 @@ def train():
         loss = ctc_loss(log_probs, labels, input_lengths=input_lengths, target_lengths=target_lengths) # 计算损失值
         if loss.item() == np.inf:
             continue
-        loss.backward()
-        optimizer.step()
-        loss_val += loss.item()
+        loss.backward() #  反向传播
+        optimizer.step() # 梯度更新
+        loss_val += loss.item() # 损失值累加
         end_time = time.time()
         if iteration % 20 == 0:
             # 每个周期的迭代次数（epochiter）、总迭代次数（Totel iter）、损失值（Loss）、批次时间（Batch time）和LR（学习率）
             print('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
                   'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr))
-            output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
+            """ output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
-                  'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr))
+                  'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr)) """
         
-    df = pd.DataFrame(output, columns=['Epoch'])
+    """  df = pd.DataFrame(output, columns=['Epoch'])
     # 将DataFrame写入Excel文件  
     df.to_excel("output.xlsx", index=False)   
     df1 = pd.DataFrame(out_acc, columns = ['Epoch'])
-    df1.to_excel('out_acc.xlsx', index=False)     
+    df1.to_excel('out_acc.xlsx', index=False)      """
     # final test
     print("Final test Accuracy:")
     Greedy_Decode_Eval(lprnet, test_dataset, args)
@@ -318,7 +320,7 @@ def Greedy_Decode_Eval(Net, datasets, args): # 贪婪搜索
     print("[Info] Test Speed: {}s 1/{}]".format((t2 - t1) / len(datasets), len(datasets)))
 
 
-    return " Accuracy: {} [{}:{}]".format(Acc, Tp, (Tp+Tn_1+Tn_2))
+    # return " Accuracy: {} [{}:{}]".format(Acc, Tp, (Tp+Tn_1+Tn_2))
 
     
 
