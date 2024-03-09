@@ -17,9 +17,9 @@ def split_dataset(base_folder, output_folder, split_ratio=(7, 2, 1)):
     val_photos = total_photos - train_photos - test_photos  
   
     # 创建三个数据集文件夹  
-    train_folder = os.path.join(output_folder, 'ccpd2019_train')  
-    test_folder = os.path.join(output_folder, 'ccpd2019_test')  
-    val_folder = os.path.join(output_folder, 'ccpd2019_val')  
+    train_folder = os.path.join(output_folder, 'ccpd2019_base_train')  
+    test_folder = os.path.join(output_folder, 'ccpd2019_base_test')  
+    val_folder = os.path.join(output_folder, 'ccpd2019_base_val')  
     if not os.path.exists(train_folder):  
         os.makedirs(train_folder)  
     if not os.path.exists(test_folder):  
@@ -48,4 +48,4 @@ def split_dataset(base_folder, output_folder, split_ratio=(7, 2, 1)):
     print(f"Val set: {val_photos} photos")  
   
 # 使用示例：将base文件夹中的照片随机分配到train、test和val三个数据集文件夹中，比例为7：2：1。  
-split_dataset("workspace\\ccpd_blur", "workspace")
+split_dataset("workspace\\ccpd_base", "workspace")

@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 from torch.utils.data import *
 import argparse
 import os
+import cv2  
 
 # Assuming you have a function to build the LPRNet model
 def get_parser():
@@ -146,18 +147,14 @@ def Greedy_Decode_Eval(Net, datasets,  args):
         # show(imgs[i], label) 只是预测结果
 
 
-
-def show(img, label, target):
-# 只是预测结果可以改为def show(img, label):
-    # 将图像从形状为 (高, 宽, 通道数) 转换为 (通道数, 高, 宽)
-    img = np.transpose(img, (1, 2, 0))
-    # 将图像每个像素值乘以 128
-    img *= 128.
-    # 将图像每个像素值加上 127.5，以将像素值缩放到 [127.5, 255] 的范围内
-    img += 127.5
-    # 将图像数据类型转换为 uint8
-    img = img.astype(np.uint8)
-
+def show(img, label, target):  
+    # 处理图像以显示  
+    img = np.transpose(img, (1, 2, 0))  
+    img *= 128.  
+    img += 127.5  
+    img = img.astype(np.uint8)  
+      
+    # 生成标签和目标字符串  
     lb = ""
     # 将标签转换为对应的字符并拼接成字符串
     for i in label:
@@ -166,22 +163,40 @@ def show(img, label, target):
     tg = ""
     # 将目标转换为对应的字符并拼接成字符串
     for j in target.tolist():
-        tg += CHARS[int(j)]
+        tg += CHARS[int(j)]  
+      
+    # 检查标签和目标是否匹配  
+    flag = "F"  
+    if lb == tg:  
+        flag = "T"  
+      
+    # 创建拼接图像的基础  
+    combined_height = img.shape[0] * 2 + 20  # 两张图像的高度加上间隔  
+    combined_width = img.shape[1]  # 两张图像的宽度  
+    combined_img = np.zeros((combined_height, combined_width, 3), dtype=np.uint8)  # 创建空图像  
+      
+    # 将第一张图像复制到拼接图像的上半部分  
+    combined_img[:img.shape[0], :] = img  
+      
+    # 在拼接图像中间位置添加文本  
+    text_y_offset = img.shape[0]  # 0像素的垂直偏移，确保文本在中间位置  
+    combined_img = cv2ImgAddText(combined_img, lb, (0, text_y_offset))  # 添加标签字符  
+      
+    # 将第一张图像（或处理过的图像）复制到拼接图像的下半部分  
+    combined_img[img.shape[0] + 20:, :] = img  
+      
+    # 可以移动窗口位置
+    cv2.namedWindow("test", cv2.WINDOW_NORMAL)  # CV_WINDOW_NORMAL就是0
+    cv2.resizeWindow("test", 500, 250)   
+    # 显示拼接后的图像  
+    cv2.imshow("test", combined_img)  
+    print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb)  
+    cv2.waitKey()  
+    cv2.destroyAllWindows()  
 
-    flag = "F"
-    if lb == tg:
-        flag = "T"
-    # 只是预测结果的话上述六行代码皆可删除
-    # 在图像上添加标签字符并显示图像
-    img = cv2ImgAddText(img, lb, (0, 0))
-    cv2.imshow("test", img)
-    # 打印目标、标记和预测结果
-    print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb)
-    # 只是预测结果print("predict: ", lb)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
-
-def cv2ImgAddText(img, text, pos, textColor=(255, 0, 0), textSize=12):
+  
+# 确保cv2ImgAddText函数能够处理任意的图像和文本位置  
+def cv2ImgAddText(img, text, pos, textColor=(255, 255, 255), textSize=12):
     # 判断输入的图像是否为 OpenCV 格式
     if (isinstance(img, np.ndarray)):  # detect opencv format or not
         # 将 OpenCV 格式的图像转换为 PIL 格式
@@ -192,9 +207,8 @@ def cv2ImgAddText(img, text, pos, textColor=(255, 0, 0), textSize=12):
     fontText = ImageFont.truetype("data/NotoSansCJK-Regular.ttc", textSize, encoding="utf-8")
     # 在指定位置 pos 上绘制文本，颜色为 textColor，字体为 fontText
     draw.text(pos, text, textColor, font=fontText)
-
     # 将 PIL 格式的图像转换回 OpenCV 格式，并返回
-    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR) 
 
 
     
