@@ -47,15 +47,15 @@ def test_single_image(img_path):
     device = torch.device("cuda:0" if args.cuda else "cpu")
     # 将模型移至指定设备上
     lprnet.to(device)
-    print("Successful to build network!")
+    #print("Successful to build network!")
 
     # 如果指定了预训练模型
     if args.pretrained_model:
         # 加载预训练模型参数
         lprnet.load_state_dict(torch.load(args.pretrained_model, map_location=torch.device('cpu')))
-        print("load pretrained model successful!")
+        #print("load pretrained model successful!")
     else:
-        print("[Error] Can't found pretrained mode, please check!")
+        #print("[Error] Can't found pretrained mode, please check!")
         return False
 
     # 获取测试图片的路径列表
@@ -166,14 +166,14 @@ def show(img, label, target):
     for i in label:
         lb += CHARS[i]
     
-    tg = ""
+    """ tg = ""
     # 将目标转换为对应的字符并拼接成字符串
     for j in target.tolist():
         tg += CHARS[int(j)]
 
     flag = "F"
     if lb == tg:
-        flag = "T"
+        flag = "T" """
     # 只是预测结果的话上述六行代码皆可删除
    # 创建拼接图像的基础  
     combined_height = img.shape[0]  + 20  # 两张图像的高度加上间隔  
@@ -192,7 +192,7 @@ def show(img, label, target):
     cv2.resizeWindow("test", 500, 250)   
     # 显示拼接后的图像  
     cv2.imshow("test", combined_img)  
-    print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb)
+    #print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb)
     cv2.waitKey()  
     cv2.destroyAllWindows()  
 
