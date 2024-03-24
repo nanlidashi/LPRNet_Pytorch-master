@@ -19,7 +19,6 @@
 </template>
 
 <script>
-import router from '@/router';
 
 export default {
   name: 'DeLu',
@@ -33,29 +32,25 @@ export default {
     }
   },
   methods: {
-    login () {
-      this.$axios
-          .post('/login', {
-            username: this.loginForm.username,
-            password: this.loginForm.password
-          })
-          .then(successResponse => {
-            console.log(successResponse.data); // 调试信息
+    async login () {
+        try {
+            let response = await this.$axios.post('/login', {
+                username: this.loginForm.username,
+                password: this.loginForm.password
+            });
+
+            console.log(response.data);
             
-            if (successResponse.data.code === 200) {
-              console.log("跳转到index页面"); // 调试信息
-              if (router.currentRoute.path === '/index') { // 检查当前路径是否已经是/index
-                router.replace({path: '/index'}); // 使用router进行页面跳转
-              }
+            if (response.data.code === 200) {
+                console.log("跳转到index页面");
+                this.$router.push({ path: '/index' });
+            } else {
+                alert(response.data.message || '登录失败');
             }
-          else {
-              alert(successResponse.data.message || '登录失败'); // 显示错误信息
-            }
-          })
-          .catch(error => {
-            console.error('登录失败:', error); // 错误日志
+        } catch (error) {
+            console.error('登录失败:', error);
             alert('登录失败，请稍后重试');
-          })
+        }
     }
   }
 }

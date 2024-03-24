@@ -15,7 +15,7 @@ public class LoginController {
     UserService userService;
 
     @CrossOrigin
-    @PostMapping(value = "/api/login")
+    @PostMapping(value = "/login")
     @ResponseBody
     public Result login(@RequestBody User requestUser) {
         String username = requestUser.getUsername();

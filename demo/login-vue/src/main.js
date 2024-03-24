@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import router from './router/index.js'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
@@ -9,7 +9,7 @@ Vue.use(ElementUI)
 
 // 创建axios实例
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080/',  // 更正的Spring Boot后端地址
+    baseURL: 'http://localhost:8080',  // 更正的Spring Boot后端地址
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
