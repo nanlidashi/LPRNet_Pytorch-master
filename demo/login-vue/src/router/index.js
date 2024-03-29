@@ -4,6 +4,7 @@ import AppIndex from '@/components/home/AppIndex.vue'
 import DeLu from "@/components/DeLu.vue";
 import UpLoad from '@/components/UpLoad.vue';
 import CeShi from '@/components/CeShi.vue';
+import ZhuCe from '@/components/ZhuCe.vue';
 
 Vue.use(Router)
 
@@ -23,6 +24,14 @@ const router = new Router({
             component: DeLu,
             meta: {
                 title: '登录页面'
+            }
+        },
+        {
+            path: '/register',
+            name: 'ZhuCe',
+            component: ZhuCe,
+            meta: {
+                title: '注册页面'
             }
         },
         {

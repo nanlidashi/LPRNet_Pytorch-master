@@ -18,13 +18,23 @@
             </el-menu-item>
           </el-menu>
         </el-aside>
-        <el-main class="right-side">
-          <el-table :data="tableData" style="width: 100%;">
+        <el-main class="right-side-ceshi">
+          <el-table :data="pagedTableData" style="width: 100%;">
             <el-table-column label="ID" prop="id"></el-table-column>
             <el-table-column label="Target" prop="target"></el-table-column>
             <el-table-column label="Flag" prop="flag"></el-table-column>
             <el-table-column label="Predict" prop="predict"></el-table-column>
           </el-table>
+          <el-pagination
+           @current-change="handleCurrentChange" 
+           @size-change="handleSizeChange"
+           :current-page="currentPage" 
+           :page-sizes="[10, 20, 50, 100]"
+           :page-size="pageSize"
+           layout="total, sizes, prev, pager, next, jumper"
+           :total="total">
+
+          </el-pagination>
         </el-main>
       </el-container>
     </el-container>
@@ -37,21 +47,39 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      tableData: []
+      tableData: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0
     };
+  },
+  computed: {
+    pagedTableData() {
+      return this.tableData;
+    }
   },
   mounted() {
     this.fetchData();
   },
   methods: {
     fetchData() {
-      axios.get('http://localhost:8080/api/plate')
+      axios.get(`http://localhost:8080/api/plate?page=${this.currentPage - 1}&size=${this.pageSize}`)
         .then(response => {
-          this.tableData = response.data;
+          this.tableData = response.data.content;
+          this.total = response.data.totalElements;
         })
         .catch(error => {
           console.error('Error fetching data:', error);
         });
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.fetchData();
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.currentPage = 1;  // Reset to first page when changing page size
+      this.fetchData();
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
@@ -65,7 +93,6 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: blue; /* 设置背景色为蓝色 */
 }
 
 .main-container {
@@ -124,16 +151,15 @@ body, html {
   border-radius: 4px; /* 设置圆角 */
 }
 
-.right-side {
+.right-side-ceshi {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
-}
-.right-side {
   background-color: lightgray;
   border: 1px solid #ccc; /* 添加边框 */
   width:1000px;
 }
+
 </style>

@@ -1,25 +1,24 @@
 <template>
   <body id="poster">
-    <el-form class="login-container" label-position="left"
-             label-width="0px">
-      <h3 class="login_title">车牌识别系统登录</h3>
+    <el-form class="login-container" label-position="left" label-width="0px">
+      <h3 class="login_title">车牌识别系统登录页面</h3>
       <el-form-item>
-        <el-input type="text" v-model="loginForm.username"
-                  auto-complete="off" placeholder="账号" class="input-transparent"></el-input>
+        <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号" class="input-transparent"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-input type="password" v-model="loginForm.password"
-                  auto-complete="off" placeholder="密码" class="input-transparent"></el-input>
+        <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码" class="input-transparent"></el-input>
       </el-form-item>
       <el-form-item style="width: 100%">
         <el-button type="primary" style="width: 100%;background: #000;border: none" v-on:click="login">登录</el-button>
+      </el-form-item>
+      <el-form-item style="width: 100%">
+        <el-button type="primary" style="width: 100%;background: #000;border: none; margin-top: 10px;" v-on:click="goToRegister">注册</el-button>
       </el-form-item>
     </el-form>
   </body>
 </template>
 
 <script>
-
 export default {
   name: 'DeLu',
   data () {
@@ -51,6 +50,9 @@ export default {
             console.error('登录失败:', error);
             alert('登录失败，请稍后重试');
         }
+    },
+    goToRegister() {
+        this.$router.push({ path: '/register' });
     }
   }
 }

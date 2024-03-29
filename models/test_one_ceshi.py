@@ -12,6 +12,7 @@ import base64
 import urllib
 import sys
 import io
+from PIL import Image, ImageDraw, ImageFont
 
 def get_parser():
     parser = argparse.ArgumentParser(description='parameters to train net')
@@ -55,7 +56,7 @@ def Greedy_Decode_Eval(Net, datasets):
         targets.append(label)
         start += length
     targets = np.array([el.numpy() for el in targets]) 
-    
+    imgs = images.numpy().copy()
     images = Variable(images)
     prebs = Net(images)
     prebs = prebs.cpu().detach().numpy()
@@ -78,18 +79,48 @@ def Greedy_Decode_Eval(Net, datasets):
             pre_c = c
         preb_labels.append(no_repeat_blank_label)
     for i, label in enumerate(preb_labels):
-        show(label, targets[i])
-def show(label, target):
+        show(imgs[i], label, targets[i])
+def show(img, label, target):
+    img = np.transpose(img, (1, 2, 0))
+    img *= 128.
+    img += 127.5
+    img = img.astype(np.uint8)
+
     lb = ""
     for i in label:
         lb += CHARS[i]
+    
     tg = ""
     for j in target.tolist():
         tg += CHARS[int(j)]
+
     flag = "F"
     if lb == tg:
         flag = "T"
-    print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb)
+  
+    combined_height = img.shape[0]  + 20  #
+    combined_width = img.shape[1]
+    combined_img = np.zeros((combined_height, combined_width, 3), dtype=np.uint8)  # 创建空图像  
+ 
+    combined_img[:img.shape[0], :] = img  
+    text_y_offset = img.shape[0]  
+    font_path = os.path.join(os.path.dirname(__file__), r"D:\\Python\\LPRNet_Pytorch-master\data\\NotoSansCJK-Regular.ttc")
+    combined_img = cv2ImgAddText(combined_img, lb, (0, text_y_offset), font_path)
+    # 保存为字节
+    _, img_bytes = cv2.imencode('.jpg', combined_img)
+    # Save the image as a base64 string
+    base64_string = base64.b64encode(img_bytes).decode('utf-8')
+
+    print("target: ", tg, " ### {} ### ".format(flag), "predict: ", lb,"Base64 Image:",base64_string)
+
+    
+def cv2ImgAddText(img, text, pos, font_path, textColor=(255, 255, 255), textSize=12):
+    if (isinstance(img, np.ndarray)): 
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(img)
+    fontText = ImageFont.truetype(font_path, textSize, encoding="utf-8")
+    draw.text(pos, text, textColor, font=fontText)
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 
 def image_to_base64(image_path):
@@ -102,18 +133,16 @@ def image_to_base64(image_path):
 
 
 if __name__ == "__main__":
-    # args = get_parser()
     # 图像文件路径
-    # image_path = urllib.parse.unquote(args.img_path)
     image_path = urllib.parse.unquote(sys.argv[1])
-    # image_path="D:\Python\LPRNet_Pytorch-master\workspace\ccpd2019_base_val\皖AVN699.jpg"
+    # image_path="D:\Python\LPRNet_Pytorch-master\data\浙F271WD.jpg"
     # 获取图像文件名（不包括文件扩展名）
     image_name = os.path.splitext(image_path)[0]
 
     # 将图像转换为Base64编码
     base64_string = image_to_base64(image_path)
 
-    # 将Base64编码保存到文件，文件名为原始图像名加上后缀 '_base64.txt'
+    # 将Base64编码保存到文件，文件名为原始图像名加上后缀 '.txt'
     output_file = image_name + ".txt"
     with open(output_file, "w") as txt_file:
         txt_file.write(base64_string)

@@ -1,17 +1,25 @@
 package com.example.loginspring.Controller;
 
-import com.example.loginspring.dao.PlateRepository;
+
 import com.example.loginspring.entity.Plate;
+import com.example.loginspring.repository.PlateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.loginspring.Service.ImageService;
+
 import java.io.File;
 import java.io.IOException;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:8081") // 允许跨域请求的前端地址
 public class ImageController {
 
     @Autowired
@@ -21,23 +29,26 @@ public class ImageController {
     private PlateRepository plateRepository;
 
     @PostMapping("/upload")
-    public String uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {
-                return "上传失败，请选择文件";
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "处理结果格式错误"));
             }
             String fileName = file.getOriginalFilename();
             String projectPath = System.getProperty("user.dir");
-            String filePath = projectPath + "/temp/" + fileName;
+            String filePath = projectPath + "/src/temp/" + fileName;
             file.transferTo(new File(filePath));
             String result = imageService.processImage(filePath);
 
+            String base64Image = imageService.getBase64Image(result);
+            String prediction = imageService.getPrediction(result);
+
             // 解析结果并保存到数据库
-            String[] parts = result.split("###");
+            String[] parts = prediction.split("###");
 
             if (parts.length < 3) {
                 deleteTempFile(filePath); // 删除临时文件
-                return "处理结果格式错误";
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "处理结果格式错误"));
             }
 
             String target = parts[0].trim().substring(9);// 获取 "target: 宁ASE106" 中的 "宁ASE106"
@@ -48,7 +59,7 @@ public class ImageController {
             Optional<Plate> existingPlate = plateRepository.findByTargetAndFlagAndPredict(target, flag, predict);
             if (existingPlate.isPresent()) {
                 deleteTempFile(filePath); // 删除临时文件
-                return "该车牌已经存在";
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "车牌已经存在"));
             }
 
             Plate plate = new Plate();
@@ -60,10 +71,14 @@ public class ImageController {
             // 删除临时文件
             deleteTempFile(filePath);
 
-            return result;
+            Map<String, String> response = new HashMap<>();
+            response.put("prediction", prediction);
+            response.put("image", base64Image);
+
+            return ResponseEntity.ok(response);
         } catch (IOException e) {
             e.printStackTrace();
-            return "Failed to upload and process image";
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Failed to upload and process image"));
         }
     }
     public void deleteTempFile(String filePath) {

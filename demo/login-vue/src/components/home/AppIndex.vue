@@ -20,8 +20,37 @@
           </el-aside>
           <el-main class="right-side">
             <el-col>
-              <div>
-                <p class="message">{{ message }}</p>
+              <div class="intro-container">
+                <h2 class="intro-title">LPRNet车牌识别系统介绍：</h2>
+                <p class="intro-content" style="color: #f00;">
+                  LPRNet（License Plate Recognition Network）是一种先进的车牌识别技术，它采用深度学习方法进行车牌号码的自动检测和识别。该系统结合了图像处理和深度学习技术，能够在复杂的环境中准确快速地识别出车辆的车牌号码。
+                </p>
+                <h3 class="workflow-title">系统工作流程：</h3>
+                <ul class="workflow-list">
+                  <li style="color: #f00;">1. 用户通过前端界面上传车辆图片。</li>
+                  <li style="color: #f00;">2. 前端将图片发送到后端。</li>
+                  <li style="color: #f00;">3. 后端使用LPRNet算法进行车牌识别。</li>
+                  <li style="color: #f00;">4. 后端返回识别结果给前端。</li>
+                  <li style="color: #f00;">5. 前端显示识别结果。</li>
+                </ul>
+                <h3 class="feature-title">技术特点：</h3>
+                <ul class="feature-list">
+                  <li style="color: #f00;">高准确性：采用深度学习模型，具有高度的识别准确性。</li>
+                  <li style="color: #f00;">高效性能：快速处理车辆图片，实时返回识别结果。</li>
+                  <li style="color: #f00;">稳定可靠：系统稳定性高，能够在各种环境下进行稳定识别。</li>
+                </ul>
+                <p class="conclusion" style="color: #2567ac;">
+                  采用LPRNet的车牌识别系统为交通管理、停车场管理、安全监控等领域提供了高效、准确的解决方案。
+                </p>
+                <h3 class="usage-title">使用方法：</h3>
+                <ul class="usage-list">
+                  <li style="color: #f00;">1. 选择“上传测试车牌”进入上传页面。</li>
+                  <li style="color: #f00;">2. 点击“选取文件”按钮选择要识别的车牌图片。</li>
+                  <li style="color: #f00;">3. 点击“识别”按钮进行车牌识别。</li>
+                  <li style="color: #f00;">4. 识别完成后，系统将展示识别结果。</li>
+                </ul>
+                <div class="separator"></div>
+                <p class="note" style="color: #2567ac;">注意：请确保上传的图片为清晰可见的车牌图片，以获得最佳识别效果。</p>
               </div>
             </el-col>
           </el-main>
@@ -126,17 +155,48 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-image: url('https://picsum.photos/1000/800.jpg'); /* 设置背景图片 */
-    background-size: cover; /* 调整背景图片大小以覆盖整个容器 */
-    background-repeat: no-repeat; /* 禁止背景图片重复 */
-    background-position: center; /* 设置背景图片位置 */
-    background-color: rgb(218, 6, 6);
+    background-image: url('../../assets/index-1.jpg');  /*设置背景图片 */
+    background-size: cover;  /*调整背景图片大小以覆盖整个容器 */
+    background-repeat: no-repeat;  /*禁止背景图片重复 */
+    background-position: center;  /*设置背景图片位置 */
+    /* background-color: rgb(218, 6, 6); */
     border: 1px solid #08d36e; /* 添加边框 */
     width:1000px;
+    height: 700px;
 }
-.message {
-    font-size: 24px; /* 设置字体大小为24px */
-}
+.intro-container {
+    max-width: 800px;
+    margin-top: 30px;
+  }
 
+  .intro-title, .workflow-title, .feature-title, .usage-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  .intro-content, .workflow-list, .feature-list, .conclusion, .usage-list, .note {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .workflow-list, .feature-list, .usage-list {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+
+  .separator {
+    height: 2px;
+    background-color: #ddd;
+    margin: 30px 0;
+  }
+
+  .note {
+    font-style: italic;
+    color: #777;
+  }
 
 </style>

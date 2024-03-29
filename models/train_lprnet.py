@@ -59,10 +59,10 @@ def adjust_learning_rate(optimizer, cur_epoch, base_lr, lr_schedule):
 
 def get_parser():
     parser = argparse.ArgumentParser(description='parameters to train net')
-    parser.add_argument('--max_epoch', default=1, help='epoch to train the network')
+    parser.add_argument('--max_epoch', default=200, help='epoch to train the network')
     parser.add_argument('--img_size', default=[94, 24], help='the image size')
-    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2019_base_train", help='the train images path')
-    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd2019_base_test", help='the test images path')
+    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\base_train", help='the train images path')
+    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\base_test", help='the test images path')
     parser.add_argument('--dropout_rate', default=0.5, help='dropout rate.')
     parser.add_argument('--learning_rate', default=0.1, help='base value of learning rate.')
     parser.add_argument('--lpr_max_len', default=8, help='license plate number max length.')
@@ -71,14 +71,14 @@ def get_parser():
     parser.add_argument('--phase_train', default=True, type=bool, help='train or test phase flag.')
     parser.add_argument('--num_workers', default=0, type=int, help='Number of workers used in dataloading')
     parser.add_argument('--cuda', default=False, type=bool, help='Use cuda to train model')
-    parser.add_argument('--resume_epoch', default=0, type=int, help='resume iter for retraining')
+    parser.add_argument('--resume_epoch', default=100, type=int, help='resume iter for retraining')
     parser.add_argument('--save_interval', default=500, type=int, help='interval for save model state dict')
     parser.add_argument('--test_interval', default=500, type=int, help='interval for evaluate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--weight_decay', default=2e-5, type=float, help='Weight decay for SGD')
-    parser.add_argument('--lr_schedule', default=[20, 40, 60, 80, 100], help='schedule for learning rate.')
+    parser.add_argument('--lr_schedule', default=[100,120,140,160], help='schedule for learning rate.')
     parser.add_argument('--save_folder', default=r'a\\',help='Location to save checkpoint models')
-    parser.add_argument('--pretrained_model', default='', help='no pretrain')
+    parser.add_argument('--pretrained_model', default=r'D:\Python\LPRNet_Pytorch-master\weights\\LPRNet__iteration_78500.pth', help='no pretrain')
 
     args = parser.parse_args()
 

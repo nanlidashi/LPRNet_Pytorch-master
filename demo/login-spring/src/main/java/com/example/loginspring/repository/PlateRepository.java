@@ -1,4 +1,4 @@
-package com.example.loginspring.dao;
+package com.example.loginspring.repository;
 
 import com.example.loginspring.entity.Plate;
 import org.springframework.data.jpa.repository.JpaRepository;
