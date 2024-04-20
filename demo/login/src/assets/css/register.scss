@@ -1,0 +1,64 @@
+.page-register {
+    ::v-deep {
+      .el-form-item {
+        label {
+          font-weight:bold;
+        }
+      }
+      padding: 5px;
+      .header {
+        //border-bottom: 2px solid rgb(235, 232, 232);
+        min-width: 980px;
+        color: #666;
+  
+        header {
+          margin: 0 auto;
+          padding: 10px 0;
+          width: 980px;
+  
+          .login {
+            float: right;
+          }
+  
+          .bold {
+            font-style: normal;
+          }
+        }
+      }
+  
+      .register {
+        color: #1890ff;
+      }
+  
+      a {
+        color: #1890ff;
+        text-decoration: none;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+  
+      > section {
+        margin: 0 auto 30px;
+        padding-top: 30px;
+        width: 980px;
+        min-height: 300px;
+        padding-right: 550px;
+        box-sizing: border-box;
+  
+        .status {
+          font-size: 12px;
+          margin-left: 20px;
+          color: #e6a23c;
+        }
+  
+        .error {
+          color: red;
+        }
+      }
+      .footer {
+        text-align: center;
+      }
+    }
+  }

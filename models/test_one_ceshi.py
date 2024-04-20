@@ -25,7 +25,7 @@ def test_single_image(img_path):
     lprnet = build_lprnet(lpr_max_len=8, phase=False, class_num=len(CHARS), dropout_rate=0)
     device = torch.device("cuda:0" if False else "cpu")
     lprnet.to(device)
-    pretrained_model = r'D:\\Python\\LPRNet_Pytorch-master\weights\\lprnet-pretrain.pth'
+    pretrained_model = r'D:\\Python\\LPRNet_Pytorch-master\weights\\LPRNet__iteration_242000.pth'
     
     lprnet.load_state_dict(torch.load(pretrained_model, map_location=torch.device('cpu')))
     
@@ -134,8 +134,8 @@ def image_to_base64(image_path):
 
 if __name__ == "__main__":
     # 图像文件路径
-    image_path = urllib.parse.unquote(sys.argv[1])
-    # image_path="D:\Python\LPRNet_Pytorch-master\data\浙F271WD.jpg"
+    # image_path = urllib.parse.unquote(sys.argv[1])
+    image_path="D:\Python\LPRNet_Pytorch-master\data\one\宁KD23326.jpg"
     # 获取图像文件名（不包括文件扩展名）
     image_name = os.path.splitext(image_path)[0]
 

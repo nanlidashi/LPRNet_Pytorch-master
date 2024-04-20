@@ -37,7 +37,7 @@ def sparse_tuple_for_ctc(T_length, lengths):
 
 def adjust_learning_rate(optimizer, cur_epoch, base_lr, lr_schedule):
     """
-    设置学习率
+    设置学习率  
     """
     # 初始化学习率为0
     lr = 0
@@ -107,8 +107,8 @@ def collate_fn(batch):
     return (torch.stack(imgs, 0), torch.from_numpy(labels), lengths)
 
 def train():
-    # output = []
-    # out_acc = []
+    output = []
+    out_acc = []
     args = get_parser()
 
     T_length = 18  # args.lpr_max_len
@@ -178,8 +178,8 @@ def train():
             batch_iterator = iter(DataLoader(train_dataset, args.train_batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate_fn))
             loss_val = 0
             epoch += 1
-            # acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
-            # out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc))
+            acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
+            out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc))
 
         if iteration !=0 and iteration % args.save_interval == 0:
             torch.save(lprnet.state_dict(), args.save_folder + 'LPRNet_' + '_iteration_' + repr(iteration) + '.pth')
@@ -239,18 +239,18 @@ def train():
             print('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
                   'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr))
-            """ output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
+            output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
-                  'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr)) """
+                  'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr)) 
         
-    """  df = pd.DataFrame(output, columns=['Epoch'])
+    df = pd.DataFrame(output, columns=['Epoch'])
     # 将DataFrame写入Excel文件  
     df.to_excel("output.xlsx", index=False)   
     df1 = pd.DataFrame(out_acc, columns = ['Epoch'])
-    df1.to_excel('out_acc.xlsx', index=False)      """
+    df1.to_excel('out_acc.xlsx', index=False)
     # final test
     print("Final test Accuracy:")
-    Greedy_Decode_Eval(lprnet, test_dataset, args)
+    # Greedy_Decode_Eval(lprnet, test_dataset, args)
 
     # save final parameters
     torch.save(lprnet.state_dict(), args.save_folder + 'lprnet-pretrain.pth')
@@ -260,9 +260,9 @@ def Greedy_Decode_Eval(Net, datasets, args): # 贪婪搜索
     epoch_size = len(datasets) // args.test_batch_size
     batch_iterator = iter(DataLoader(datasets, args.test_batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate_fn))
 
-    Tp = 0
-    Tn_1 = 0
-    Tn_2 = 0
+    Tp = 0  # 正确预测的数量
+    Tn_1 = 0  # 预测长度与真实标签长度不匹配的数量
+    Tn_2 = 0  # 预测标签与真实标签不匹配的数量0
     t1 = time.time()
     for i in range(epoch_size):
         # load train data
@@ -325,17 +325,6 @@ def Greedy_Decode_Eval(Net, datasets, args): # 贪婪搜索
     
 
 if __name__ == "__main__":
-    # 获取当前时间作为起始时间  
-    start_time = datetime.datetime.now()
+ 
     train()
-    # 获取程序结束时间  
-    end_time = datetime.datetime.now()  
-    # 计算时间差  
-    time_difference = end_time - start_time  
-    # 将时间差转换为小时、分钟和秒  
-    hours = time_difference.seconds // 3600  
-    minutes = (time_difference.seconds % 3600) // 60  
-    seconds = time_difference.seconds % 60  
-    # 将结果格式化为字符串，不足一秒按一秒算  
-    formatted_time = "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)  
-    print("程序运行时间为:", formatted_time)
+ 

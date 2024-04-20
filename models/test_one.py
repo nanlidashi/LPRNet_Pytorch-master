@@ -29,7 +29,7 @@ def get_parser():
     # 添加命令行参数--cuda，并设置默认值为False，类型为bool，用于指定是否使用cuda进行模型训练
     parser.add_argument('--cuda', default=False, type=bool, help='Use cuda to train model')
     # 添加命令行参数--pretrained_model，并设置默认值为'weights\\lprnet-pretrain.pth'，用于指定预训练模型的路径
-    parser.add_argument('--pretrained_model', default=r'weights\\lprnet-pretrain.pth', help='pretrained base model')
+    parser.add_argument('--pretrained_model', default=r'weights\\LPRNet__iteration_242000.pth', help='pretrained base model')
     # 添加命令行参数--test_img_dirs，并设置默认值为'data\\one'，用于指定测试图像的路径
     # parser.add_argument('--test_img_dirs', default=r"data\\one", help='the test images path')
     # 解析命令行参数并返回结果
@@ -216,5 +216,5 @@ def cv2ImgAddText(img, text, pos, textColor=(255, 255, 255), textSize=12):
 
     
 if __name__ == "__main__":
-    image_path = "data\\two\沪C3A788.jpg" 
+    image_path = "data\one\宁778JRCT.jpg" 
     test_single_image(image_path)
