@@ -21,6 +21,9 @@ public class UserService {
     public User get(String username, String password){
         return userRepository.getByUsernameAndPassword(username, password);
     }
+    public User getemail(String email){
+        return userRepository.getByEmail(email);
+    }
 
     public void add(User user) {
         userRepository.save(user);
@@ -29,12 +32,15 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
-    public boolean checkPasswordMatch(String password, String confirmPassword) {
-        return password.equals(confirmPassword);
+    public boolean checkPasswordMatch(String password, String cPassword) {
+        return password.equals(cPassword);
     }
 
     public boolean isUsernameExists(String username) {
         return userRepository.existsByUsername(username);
     }
 
+    public boolean isEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

@@ -1,9 +1,8 @@
 import os  
 import random  
 import shutil  
-  
-# def split_dataset(base_folder, output_folder, split_ratio=(7, 2, 1)):  
-def split_dataset(base_folder, output_folder, split_ratio=(8, 2)): 
+#把某个文件夹的照片安装一定的比例进行分配
+def split_dataset(base_folder, output_folder, split_ratio=(7, 2, 1)):  
     # 确保输出文件夹存在  
     if not os.path.exists(output_folder):  
         os.makedirs(output_folder)  
@@ -14,27 +13,25 @@ def split_dataset(base_folder, output_folder, split_ratio=(8, 2)):
     # 计算每个数据集应包含的照片数量  
     total_photos = len(photo_files)  
     train_photos = int(total_photos * split_ratio[0] / sum(split_ratio))  
-    # test_photos = int(total_photos * split_ratio[1] / sum(split_ratio))  
-    # val_photos = total_photos - train_photos - test_photos  
-    train_photos = int(total_photos * split_ratio[0] / sum(split_ratio))    
-    test_photos = total_photos - train_photos  # 直接用总数减去训练集数量得到测试集数量  
+    test_photos = int(total_photos * split_ratio[1] / sum(split_ratio))  
+    val_photos = total_photos - train_photos - test_photos  
   
     # 创建三个数据集文件夹  
-    train_folder = os.path.join(output_folder, 'base_train')  
-    test_folder = os.path.join(output_folder, 'base_test')  
-    # val_folder = os.path.join(output_folder, 'ccpd2019_base_val')  
+    train_folder = os.path.join(output_folder, 'ccpd_train')  
+    test_folder = os.path.join(output_folder, 'ccpd_test')  
+    val_folder = os.path.join(output_folder, 'ccpd_val')  
     if not os.path.exists(train_folder):  
         os.makedirs(train_folder)  
     if not os.path.exists(test_folder):  
         os.makedirs(test_folder)  
-    """ if not os.path.exists(val_folder):  
-        os.makedirs(val_folder)  """ 
+    if not os.path.exists(val_folder):  
+        os.makedirs(val_folder)  
   
     # 随机分配照片到各个数据集文件夹中  
     random.shuffle(photo_files)  # 先打乱照片文件列表  
     train_index = 0  
-    """test_index = 0  
-     val_index = 0  
+    test_index = 0  
+    val_index = 0  
     for photo in photo_files:  
         if train_index < train_photos:  
             shutil.copy(os.path.join(base_folder, photo), train_folder)  # 复制照片到train文件夹中  
@@ -48,17 +45,10 @@ def split_dataset(base_folder, output_folder, split_ratio=(8, 2)):
   
     print(f"Train set: {train_photos} photos")  
     print(f"Test set: {test_photos} photos")  
-    print(f"Val set: {val_photos} photos")   """
-
-    for photo in photo_files:    
-        if train_index < train_photos:    
-            shutil.copy(os.path.join(base_folder, photo), train_folder)  # 复制照片到train文件夹中    
-            train_index += 1    
-        else:    
-            shutil.copy(os.path.join(base_folder, photo), test_folder)  # 复制照片到test文件夹中    
-    
-    print(f"Train set: {train_photos} photos")    
-    print(f"Test set: {test_photos} photos")
+    print(f"Val set: {val_photos} photos")  
   
 # 使用示例：将base文件夹中的照片随机分配到train、test和val三个数据集文件夹中，比例为7：2：1。  
-split_dataset("workspace\\train", "workspace")
+split_dataset("D:\\Python\\LPRNet_Pytorch-master\workspace\\base", "workspace")
+""" Train set: 100944 photos
+Test set: 28841 photos
+Val set: 14421 photos """

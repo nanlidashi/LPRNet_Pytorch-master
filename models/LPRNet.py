@@ -167,12 +167,12 @@ class LPRNet(nn.Module):
 
         return logits
 
-def build_lprnet(lpr_max_len=8, phase=False, class_num=66, dropout_rate=0.5):
+def build_lprnet(lpr_max_len=8, phase=False, class_num=68, dropout_rate=0.5):
     '''
     函数定义:
     lpr_max_len: 定义了LPR（License Plate Recognition）的最大长度，默认值为8。
     phase: 用于指示模型应该处于训练模式还是评估模式，默认为False。
-    class_num: 分类的数量，默认值为66。
+    class_num: 分类的数量，默认值为68。
     dropout_rate: dropout率，用于防止过拟合，默认值为0.5。
     创建LPRNet实例:
         使用给定的参数创建一个 LPRNet 类的实例，并将其赋值给变量 Net。
@@ -182,18 +182,18 @@ def build_lprnet(lpr_max_len=8, phase=False, class_num=66, dropout_rate=0.5):
     '''
     Net = LPRNet(lpr_max_len, phase, class_num, dropout_rate)
 
-    if phase == "train":
+    if not phase:
         return Net.train()
     else:
         return Net.eval()
 
-"""     return Net
+    return Net
     
 if __name__ == "__main__":
     from torchsummary import summary
-    model = build_lprnet(68,0.5)
+    model = build_lprnet(68)
     summary(model, (3,24,94), device="cpu")
-
+"""
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
 ================================================================

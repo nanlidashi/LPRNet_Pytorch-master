@@ -1,6 +1,5 @@
 package com.example.loginspring.Controller;
 
-
 import com.example.loginspring.entity.Plate;
 import com.example.loginspring.repository.PlateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +53,10 @@ public class ImageController {
             String target = parts[0].trim().substring(9);// 获取 "target: 宁ASE106" 中的 "宁ASE106"
             String flag = parts[1].trim();// 获取 "flag:F" 中的 "F"
             String predict = parts[2].trim().substring(10);// 获取 "predict: 闽ASE10G" 中的 "闽ASE10G"
+            String base64 = base64Image;// 获取 base64码
 
             //检查数据库中是否已经存在该车牌
-            Optional<Plate> existingPlate = plateRepository.findByTargetAndFlagAndPredict(target, flag, predict);
+            Optional<Plate> existingPlate = plateRepository.findByTargetAndFlagAndPredictAndBase64(target, flag, predict, base64);
             if (existingPlate.isPresent()) {
                 deleteTempFile(filePath); // 删除临时文件
                 return ResponseEntity.badRequest().body(Collections.singletonMap("error", "车牌已经存在"));
@@ -66,6 +66,7 @@ public class ImageController {
             plate.setTarget(target);
             plate.setFlag(flag);
             plate.setPredict(predict);
+            plate.setBase64(base64);
             plateRepository.save(plate);
 
             // 删除临时文件

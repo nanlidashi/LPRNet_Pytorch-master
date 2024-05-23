@@ -7,7 +7,7 @@ export const constantRoutes = [
 
   {
     path: '',
-    redirect: '/login'
+    redirect: '/index'
   },
 
   {
@@ -40,6 +40,14 @@ export const constantRoutes = [
     component: () => import('@/views/UpLoad'),
     meta: {
       title: '上传'
+    }
+  },
+
+  {
+    path: '/search',
+    component: () => import('@/views/ShowPlate'),
+    meta: {
+      title: '展示识别车牌'
     }
   },
 

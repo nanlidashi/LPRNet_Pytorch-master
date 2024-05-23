@@ -3,7 +3,7 @@ package com.example.loginspring.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "plate_info")
+@Table(name = "plate")
 public class Plate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +17,11 @@ public class Plate {
     private String flag;
     @Column(name = "Predict", nullable = false)
     private String predict;
+
+    @Lob
+    @Column(name = "Base64", columnDefinition = "TEXT")
+    private String base64;
+
 
     public Long getId() {
         return id;
@@ -48,5 +53,13 @@ public class Plate {
 
     public void setPredict(String predict) {
         this.predict = predict;
+    }
+
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
     }
 }

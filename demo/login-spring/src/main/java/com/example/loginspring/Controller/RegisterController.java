@@ -13,17 +13,23 @@ public class RegisterController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @PostMapping(value = "/api/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         try{
             if(userService.isUsernameExists(user.getUsername())){
                 return ResponseEntity.badRequest().body("用户名已存在");
             }
-            if (!userService.checkPasswordMatch(user.getPassword(), user.getConfirmPassword())) {
+            if (!userService.checkPasswordMatch(user.getPassword(), user.getcPassword())) {
                 return ResponseEntity.badRequest().body("密码不一致");
             }
             User newUser = userService.saveUser(user);
-            return ResponseEntity.ok(newUser);
+            newUser.setUsername(user.getUsername());
+            newUser.setPassword(user.getPassword());  // You should hash the password here
+            newUser.setEmail(user.getEmail());
+
+            userService.saveUser(newUser);
+//            return ResponseEntity.ok(newUser);
+            return ResponseEntity.ok("User registered successfully!");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("注册失败" + e.getMessage());

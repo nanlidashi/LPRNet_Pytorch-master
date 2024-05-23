@@ -31,7 +31,7 @@ public class ImageService {
             }
 
             // 打印处理结果
-            System.out.println( result);
+//            System.out.println( result);
 
             return result.toString();
         } catch (IOException  e) {

@@ -1,8 +1,11 @@
 <template>
   <div>
     <el-container class="main-container">
-      <el-header class="top-div">
-        <p>车牌识别系统</p>
+      <el-header class="top-div" style="display: flex; justify-content: space-between; align-items: center;">
+          <p style="margin: 0 auto;">车牌识别系统</p>
+          <a href="/login">
+              <el-button type="primary" size="small">登录</el-button>
+          </a>
       </el-header>
       <el-container class="bottom-div">
         <el-aside class="left-side">
@@ -14,8 +17,11 @@
                   <a href="/upload">上传测试车牌</a>
                 </el-menu-item>
               <el-menu-item index="3">
-                  <a href="/ceshi">历史测试车牌</a>
-                </el-menu-item>
+                <a href="/search">展示识别车牌</a>
+              </el-menu-item>
+              <el-menu-item index="4">
+                <a href="/ceshi">历史测试车牌</a>
+              </el-menu-item>
             </el-menu>
           </el-aside>
           <el-main class="right-side">

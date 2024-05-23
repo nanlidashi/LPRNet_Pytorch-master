@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# /usr/bin/env/python3
 
 from torch.utils.data import DataLoader
 from LPRNet import LPRNet
@@ -59,10 +58,10 @@ def adjust_learning_rate(optimizer, cur_epoch, base_lr, lr_schedule):
 
 def get_parser():
     parser = argparse.ArgumentParser(description='parameters to train net')
-    parser.add_argument('--max_epoch', default=200, help='epoch to train the network')
+    parser.add_argument('--max_epoch', default=1, help='epoch to train the network')
     parser.add_argument('--img_size', default=[94, 24], help='the image size')
-    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\base_train", help='the train images path')
-    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\base_test", help='the test images path')
+    parser.add_argument('--train_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd_train", help='the train images path')
+    parser.add_argument('--test_img_dirs', default=r"D:\\Python\\LPRNet_Pytorch-master\workspace\\ccpd_test", help='the test images path')
     parser.add_argument('--dropout_rate', default=0.5, help='dropout rate.')
     parser.add_argument('--learning_rate', default=0.1, help='base value of learning rate.')
     parser.add_argument('--lpr_max_len', default=8, help='license plate number max length.')
@@ -71,14 +70,14 @@ def get_parser():
     parser.add_argument('--phase_train', default=True, type=bool, help='train or test phase flag.')
     parser.add_argument('--num_workers', default=0, type=int, help='Number of workers used in dataloading')
     parser.add_argument('--cuda', default=False, type=bool, help='Use cuda to train model')
-    parser.add_argument('--resume_epoch', default=100, type=int, help='resume iter for retraining')
+    parser.add_argument('--resume_epoch', default=0, type=int, help='resume iter for retraining')
     parser.add_argument('--save_interval', default=500, type=int, help='interval for save model state dict')
     parser.add_argument('--test_interval', default=500, type=int, help='interval for evaluate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--weight_decay', default=2e-5, type=float, help='Weight decay for SGD')
-    parser.add_argument('--lr_schedule', default=[100,120,140,160], help='schedule for learning rate.')
+    parser.add_argument('--lr_schedule', default=[20,40,60,80,100], help='schedule for learning rate.')
     parser.add_argument('--save_folder', default=r'a\\',help='Location to save checkpoint models')
-    parser.add_argument('--pretrained_model', default=r'D:\Python\LPRNet_Pytorch-master\weights\\LPRNet__iteration_78500.pth', help='no pretrain')
+    parser.add_argument('--pretrained_model', default=r'', help='no pretrain')
 
     args = parser.parse_args()
 
@@ -107,10 +106,9 @@ def collate_fn(batch):
     return (torch.stack(imgs, 0), torch.from_numpy(labels), lengths)
 
 def train():
-    output = []
-    out_acc = []
+    """ output = []
+    out_acc = [] """
     args = get_parser()
-
     T_length = 18  # args.lpr_max_len
     epoch = 0 + args.resume_epoch
     loss_val = 0
@@ -122,7 +120,6 @@ def train():
     device = torch.device("cuda:0" if args.cuda else "cpu")
     lprnet.to(device)
     print("Successful to build network!")
-
     # load pretrained model
     if args.pretrained_model:
         lprnet.load_state_dict(torch.load(args.pretrained_model))# 加载预训练模型
@@ -178,8 +175,8 @@ def train():
             batch_iterator = iter(DataLoader(train_dataset, args.train_batch_size, shuffle=True, num_workers=args.num_workers, collate_fn=collate_fn))
             loss_val = 0
             epoch += 1
-            acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
-            out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc))
+            """ acc = Greedy_Decode_Eval(lprnet, test_dataset, args)
+            out_acc.append('Epoch:' + repr(epoch) + "||" + str(acc)) """
 
         if iteration !=0 and iteration % args.save_interval == 0:
             torch.save(lprnet.state_dict(), args.save_folder + 'LPRNet_' + '_iteration_' + repr(iteration) + '.pth')
@@ -239,7 +236,7 @@ def train():
             print('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
                   'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr))
-            output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
+            """ output.append('Epoch:' + repr(epoch) + ' || epochiter: ' + repr(iteration % epoch_size) + '/' + repr(epoch_size)
                   + '|| Totel iter ' + repr(iteration) + ' || Loss: %.4f||' % (loss.item()) +
                   'Batch time: %.4f sec. ||' % (end_time - start_time) + 'LR: %.8f' % (lr)) 
         
@@ -247,10 +244,10 @@ def train():
     # 将DataFrame写入Excel文件  
     df.to_excel("output.xlsx", index=False)   
     df1 = pd.DataFrame(out_acc, columns = ['Epoch'])
-    df1.to_excel('out_acc.xlsx', index=False)
+    df1.to_excel('out_acc.xlsx', index=False) """
     # final test
     print("Final test Accuracy:")
-    # Greedy_Decode_Eval(lprnet, test_dataset, args)
+    Greedy_Decode_Eval(lprnet, test_dataset, args)
 
     # save final parameters
     torch.save(lprnet.state_dict(), args.save_folder + 'lprnet-pretrain.pth')

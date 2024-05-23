@@ -14,8 +14,11 @@
               <a href="/upload">上传测试车牌</a>
             </el-menu-item>
             <el-menu-item index="3">
-              <a href="/ceshi">历史测试车牌</a>
-            </el-menu-item>
+                <a href="/search">展示识别车牌</a>
+              </el-menu-item>
+            <el-menu-item index="4">
+                <a href="/ceshi">历史测试车牌</a>
+              </el-menu-item>
           </el-menu>
         </el-aside>
         <div class="right-side-upload">

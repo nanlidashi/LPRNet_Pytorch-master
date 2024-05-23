@@ -6,7 +6,7 @@
       </el-header>
       <el-container class="bottom-div">
         <el-aside class="left-side">
-          <el-menu default-active="3" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+          <el-menu default-active="4" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
             <el-menu-item index="1">
               <a href="/index">首页</a>
             </el-menu-item>
@@ -14,8 +14,11 @@
               <a href="/upload">上传测试车牌</a>
             </el-menu-item>
             <el-menu-item index="3">
-              <a href="/ceshi">历史测试车牌</a>
-            </el-menu-item>
+                <a href="/search">展示识别车牌</a>
+              </el-menu-item>
+              <el-menu-item index="4">
+                <a href="/ceshi">历史测试车牌</a>
+              </el-menu-item>
           </el-menu>
         </el-aside>
         <el-main class="right-side-ceshi">

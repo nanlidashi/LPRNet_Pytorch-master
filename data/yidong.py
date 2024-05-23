@@ -1,6 +1,6 @@
 import os  
 import shutil  
-  
+#从源文件夹移动到目标文件夹下
 # 定义源文件夹和目标文件夹  
 src_dir = "D:\Python\Vehicle identification\CCPD2020\ccpd_green\ccpd_train"  
 dst_dir = "D:\Python\LPRNet_Pytorch-master\workspace\ccpd2020_test"  

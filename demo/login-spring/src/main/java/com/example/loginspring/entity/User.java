@@ -16,9 +16,10 @@ public class User {
 
     String username;
     String password;
+    String email;
 
     @Transient
-    private String confirmPassword; // 添加一个确认密码字段，不保存到数据库
+    private String cPassword; // 添加一个确认密码字段，不保存到数据库
 
     public int getId() {
         return id;
@@ -44,11 +45,20 @@ public class User {
         this.password = password;
     }
 
-    public String getConfirmPassword() {
-        return confirmPassword;
+    public String getEmail() {
+        return email;
     }
 
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
+    public String getcPassword() {
+        return cPassword;
+    }
+
+    public void setcPassword(String cPassword) {
+        this.cPassword = cPassword;
     }
 }
